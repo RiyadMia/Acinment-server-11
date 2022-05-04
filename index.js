@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const port = process.env.PORT || 5000;
@@ -9,6 +10,8 @@ const app = express();
 // middleware
 app.use(cors());
 app.use(express.json());
+
+// jwt
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kducj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
@@ -21,9 +24,19 @@ async function run() {
   try {
     await client.connect();
     const serviceCollection = client.db("mobile").collection("service");
-
     const orderCollection = client.db("mobile").collection("order");
 
+    // jwt token
+
+    app.post("/login", async (req, res) => {
+      const user = req.body;
+      const accessToken = jwt.sign(user, process.env.ACCRSS_TOKEN, {
+        expiresIn: "1d",
+      });
+      res.send({ accessToken });
+    });
+
+    //service api
     app.get("/service", async (req, res) => {
       const query = {};
       const cursor = serviceCollection.find(query);
@@ -57,9 +70,8 @@ async function run() {
     // order ui
 
     app.get("/order", async (req, res) => {
-      const email = req.query;
-      console.log(email);
-      const query = {};
+      const email = req.query.email;
+      const query = { email: email };
       const cursor = orderCollection.find(query);
       const orders = await cursor.toArray();
       res.send(orders);
