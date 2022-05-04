@@ -17,8 +17,8 @@ function verifyJWT(req, res, next) {
   if (!authHeader) {
     return res.status(401).send({ message: "unauthorized access" });
   }
-  const token = authHeader.split(" ")[1];
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+  const token = authHeader.split;
+  jwt.verify(token, process.env.ACCRSS_TOKEN, (err, decoded) => {
     if (err) {
       return res.status(403).send({ message: "Forbidden access" });
     }
@@ -93,6 +93,10 @@ async function run() {
         const cursor = orderCollection.find(query);
         const orders = await cursor.toArray();
         res.send(orders);
+      } else {
+        res.status(403).send({
+          message: "forbidden access",
+        });
       }
     });
     // order collection
