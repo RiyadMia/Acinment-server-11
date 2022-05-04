@@ -12,12 +12,13 @@ app.use(cors());
 app.use(express.json());
 
 // jwt
+
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     return res.status(401).send({ message: "unauthorized access" });
   }
-  const token = authHeader.split;
+  const token = authHeader.split(" ")[1];
   jwt.verify(token, process.env.ACCRSS_TOKEN, (err, decoded) => {
     if (err) {
       return res.status(403).send({ message: "Forbidden access" });
@@ -94,11 +95,10 @@ async function run() {
         const orders = await cursor.toArray();
         res.send(orders);
       } else {
-        res.status(403).send({
-          message: "forbidden access",
-        });
+        res.status(403).send({ message: "forbidden access" });
       }
     });
+
     // order collection
 
     app.post("/order", async (req, res) => {
